@@ -1,0 +1,256 @@
+                                   RICCI
+
+                                Changes.txt
+
+The list below shows all significant changes made to the package since the
+first beta release.
+
+3/10/16 Version 1.61:
+
+		Fixed bug in BasisExpand[Del[w]]
+		Fixed display of Del[w]
+		Fixed "shadow symbol" problem with new system symbols
+		Fixed bug in BasisExpand[tensor^p]
+
+3/5/16 Version 1.6:
+
+		Fixed protection errors caused by new system symbols in Mathematica 9 & 10.
+
+9/16/11 Version 1.53:
+
+        Fixed protection error caused by new system symbol 
+        PermutationOrder.
+
+8/28/06 Version 1.52:
+
+        Added code to correctly handle derivatives of conjugates of 
+        math functions.
+
+        Corrected a sign error in CurvToConnRule (which only occurred
+        when RiemannConvention was set to SecondUp, the default).
+   
+
+6/28/04 Version 1.51:
+
+	Corrected errors introduced by Mathematica version 5.0:
+	* It now treats new system symbols (Norm,TensorQ,Variance)
+	correctly, so as to avoid protected symbol error messages.
+	* Fixed a bug in parenthesization of tensor expressions that
+	cropped up in Version 5.
+
+11/12/02 Version 1.37:
+
+	Fixed a bug in Grad[u v, Metric->g]: When u is a 0-tensor,
+	the non-default metric was ignored when applying Grad to v.
+
+7/26/02 Version 1.36:
+
+	Fixed a small bug in the evaluation of covariant derivatives 
+	of mathematical functions such as Log[u+1][L[i]].        
+
+12/18/00 Version 1.35:
+
+        Fixed a serious mathematical bug in the evaluation of 
+        Del[x,Connection->y] (which also affected the use of Del
+        with the Metric option, as well as other functions such
+        as Div with non-default metrics & connections).  The problem
+        was that for a contravariant tensor v, the old version of 
+        Ricci interpreted Del[v,Connection->y][L[i],L[j]] as if the
+        index of v had been lowered before taking the covariant
+        derivative, whereas to be consistent with Ricci's other
+        conventions it should have been lowered after.
+
+1/7/00  Version 1.34:
+
+        Minor fixes to allow Ricci to work with Mathematica 4.0:
+        Treated Tr as a system symbol, with Protect/Unprotect
+        around definitions;
+        Replaced Literal by HoldPattern throughout.
+
+6/30/99 Version 1.33:
+
+        Fixed the TangentBundle function so that it always assumes
+        $DefaultTangentBundle for "generic" tensors whose bundle
+        is denoted "Any".  This allows BasisExpand to work correctly
+        with expressions such as Del(Tor.X).
+
+1/2/98 	Version 1.32:  
+	
+	Fixed bug in parenthesizing output expressions
+
+8/18/97 Version 1.31:  
+
+	Fixed bug inserting indices in Del[x,Connection->c]
+
+2/11/97 Version 1.3:   
+
+	Minor modifications to enable use with Mathematica 3.0.
+
+4/19/95         J. Lee (Version 1.2.1)
+
+        * Corrected omission of usage messages from released version.
+
+4/14/95         J. Lee
+
+        * Version 1.2 released.
+
+2/17/95         J. Lee
+
+        * Made tensor simplification functions return Null if called in
+          error with no arguments.
+
+12/29/94        J. Lee
+
+        * Corrected DefineConstant[x,Type->Positive]
+
+12/14/94        J. Lee
+
+        * Fixed incorrect handling of Del[x,Metric->g] and Div[x,Metric->g]
+
+        * Rewrote the algorithm for TensorExpand to make it much faster on
+          expressions involving many factors.
+
+7/11/94         J. Lee
+
+        * Make DefineRelation omit 1-dimensional bundle indices from the
+          list of dummy variables in its Module.       
+
+7/7/94          J. Lee
+
+        * Correct handling of dummy variables in the Module created by
+          DefineRule and DefineRelation.
+
+7/1/94          J. Lee 
+
+        * Make Kronecker[L[z1],U[z2]] = 1 for 1-dimensional bundles.
+
+5/31/94         J. Lee
+
+        * Corrected code for Alt and Sym to correctly handle symmetric
+          products of tensors on 1-dimensional bundles.
+
+3/23/94         J. Lee
+
+        * Added rules for Conjugate[RiemannTensor], Conjugate[RicciTensor],
+          and Conjugate[ScalarCurv].
+
+
+11/25/93        J. Lee 
+
+        * Fix bug in DefineBundle.m in processing of BasisName.
+
+9/27/93         J. Lee
+
+        * Change all Ricci filenames to have no more than 8 characters, for
+          compatibility with DOS.
+
+7/15/93         J. Lee
+
+        * Change DefineRule and DefineRelation so they create a "Module"
+          for each rule or relation defined; this prevents conflicts with
+          user-defined indices such as i1, i2, etc.
+
+2/25/93         J. Lee
+
+        * Fixed bug in Dot that did not allow use of Mathematica's internal
+          Dot function for lists.
+
+        * Fixed bug in DefineBundle that didn't correctly set components of
+          the metric on a 1-dimensional bundle to 1 when OrthonormalFrame
+          -> True.
+
+        * Made metric components -1 when OrthonormalFrame -> True and
+          PositiveDefinite -> False on a 1-dimensional bundle.
+
+2/12/93          J. Lee
+
+        * Fixed bug in InsertIndices that caused incorrect error message
+          when wrong number of indices is inserted into a tensor.
+
+8/24/92         J. Lee
+
+        * Version 1.0 released.
+
+8/21/92         J. Lee
+
+        * Added "CurvToConnRule".
+
+        * Added "CommutingFrame" option for DefineBundle.
+
+        * Changed interpretation of Type option for DefineConstant,
+          DefineMathFunction, DefineTensor: these functions now accept
+          Type->{Positive,Real} etc. instead of Type->PositiveReal.
+
+        * Added "Declare".
+
+        * Eliminated "CorrectVariances", and replaced it with the
+          Mode->OneDims option of "CorrectAllVariances".
+
+        * Changes the OneDims->False option of AbsorbMetrics to
+          Mode->NoOneDims. 
+
+8/13/92         J. Lee
+
+        * Added "ConnToMetricRule".
+
+        * Made UndefineBundle automatically undefine the Riemann, Ricci,
+          and Scalar curvature tensors when undefining a Riemannian tangent
+          bundle.
+
+8/12/92         J. Lee
+
+        * Fixed various bugs relating to non-default metrics and
+          connections on a direct sum of bundles.
+
+8/8/92          J. Lee
+
+        * Fixed BasisGather so it recognizes both x and -x.  This is
+          necessary for expressions like ExtdStar[w] which begin with a
+          minus sign.
+
+8/6/92          J. Lee
+
+        * Added rules to compute derivatives of components of inverse
+          tensors and inverse metrics in terms of the original tensor or
+          metric.
+
+        * Added code to make the inverse of a Hermitian tensor also behave
+          as a Hermitian tensor.
+
+7/30/92         J. Lee
+
+        * Added the CommutingFrame option for DefineBundle
+
+7/13/92         J. Lee
+
+        * Corrected sign bug in insertion of indices into RiemannTensor[g]
+
+7/12/92         J. Lee
+
+        * Corrected bug in insertion of indices into Sym[_] and Alt[_]
+
+7/8/92          J. Lee
+
+        * Added code to correctly handle Mma's builtin constants
+
+7/7/92          J. Lee
+
+        * Ricci Version 1.0 Beta 1 released
+
+        This first beta release incorporated numerous changes from previous
+        versions, formerly called DG.  The most important were:
+
+        * Change in syntax for DefineRelation and DefineRule: underscores
+          no longer used in dummy index names.
+
+        * Name changes: Tprod changed to TProd, Extdstar to ExtdStar, to be
+          more consistent with Mathematica's and Ricci's naming
+          conventions.
+
+        * Delstar has been replaced by Div, and CovLaplacian has been
+          replaced by Laplacian.
+
+        * Many new functions and options added, such as ProductExpand,
+          CovDExpand, SuperSimplify, BasisName, OrthonormalFrame,
+          ParallelFrame.
+

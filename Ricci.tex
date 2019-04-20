@@ -1,0 +1,50 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                         %
+%                                Ricci.tex                                %
+%                                                                         %
+%              TeX macros for TeX output produced by Ricci.               %
+%                                                                         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% "tensor" macro for typesetting tensors with offset upper & lower
+%  indices.
+%
+% Syntax: \tensor{<symbol>}{\down <sub1> \up <sup1> \down <sub2> ...}
+% e.g.
+% \tensor R{\down i \up j \down {kl}}
+% produces:
+%       j
+%     R
+%      i kl
+%
+% Ricci uses this macro instead of simply typing R_{i}^j_{kl}, in order to
+% force TeX to align the baselines indices of different heights.  This
+% problem is particularly noticeable when barred and unbarred indices are
+% mixed. 
+%
+\def\mysavedown#1{\edef\mysubs{\mysubs#1}}
+\def\mysaveup#1{\edef\mysups{\mysups#1}}
+\def\mydown#1{{\mytensor}_{\vphantom{\mysubs}#1}}
+\def\myup#1{{\mytensor}^{\vphantom{\mysups}#1}}
+\def\tensor#1#2{
+  #1
+  \def\mytensor{\vphantom{#1}}
+  \def\mysubs{\relax}
+  \def\mysups{\relax}
+% Make one pass across indices to determine maximum height.
+  \let\down=\mysavedown
+  \let\up=\mysaveup
+  #2
+% Now make a second pass to typeset the sub- & superscripts.
+  \let\down=\mydown
+  \let\up=\myup
+  #2
+  }
+
+\def\Alt{\mathop{\hbox{Alt}}\nolimits}
+\def\Sym{\mathop{\hbox{Sym}}\nolimits}
+\def\Del{\mathop\nabla\nolimits}
+\def\grad{\mathop{\hbox{grad}}\nolimits}
+\def\div{\mathop{\hbox{div}}\nolimits}
+\def\extd{\mathop{d}\nolimits}
+\def\Lie{\cal L} %% Change this to "\Cal L" for amstex

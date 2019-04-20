@@ -1,0 +1,616 @@
+(****************************************************************************
+                                   
+                                Ricci
+         A Mathematica package for doing tensor calculations
+                       in differential geometry
+
+
+                         Sample Ricci session
+
+What follows is a brief example of how to use Ricci; it is not meant
+to provide complete documentation.  For more information, see the
+manual.
+
+****************************************************************************)
+
+In[1]:= <<Ricci.m
+
+ -- Ricci Version 1.0 (August 24, 1992) --
+    Copyright 1992 John M. Lee
+    Problem reports or suggestions to: lee@math.washington.edu
+
+(****************************************************************************
+To begin, we define our basic constants, bundles, tensors, and indices.  We
+define "tangent" as an n-dimensional real bundle with a Riemannian metric.
+We define the indices i,j,k,l,m to be associated with tangent.
+****************************************************************************)
+
+In[3]:= DefineBundle[tangent,n,g,{i,j,k,l,m},MetricType->Riemannian]
+
+Constant n defined.  Conjugate[n] = n.
+Index i associated with tangent
+Index j associated with tangent
+Index k associated with tangent
+Index l associated with tangent
+Index m associated with tangent
+Tensor g defined.
+  Rank = 2  Symmetries = Symmetric
+  Type = Real  Bundle = tangent  Variance = Covariant
+Tensor Rm defined.
+  Rank = 4  Symmetries = RiemannSymmetries
+  Type = Real  Bundle = tangent  Variance = Covariant
+Tensor Rc defined.
+  Rank = 2  Symmetries = Symmetric
+  Type = Real  Bundle = tangent  Variance = Covariant
+Tensor Sc defined.
+  Rank = 0  Symmetries = NoSymmetries
+  Type = Real  Bundle = tangent  Variance = Covariant
+Bundle tangent defined.
+   Metric = g   Dimension = n   Indices = {i, j, k, l, m}
+   Bundle Type = Real   Metric Type = Riemannian
+   Tangent Bundle = {tangent}
+   Connection is torsion free.
+
+Out[3]= tangent
+
+(*****************************************************************************
+Now we define some tensors:  u is a 0-tensor (a function), w is a 1-form, v
+is a vector field (a contravariant 1-tensor), and eta is a 2-form.  By
+default, they will be associated with "tangent", because it was the first
+bundle we defined.
+*****************************************************************************)
+
+In[4]:= DefineTensor[u,0]
+
+Tensor u defined.
+  Rank = 0  Symmetries = NoSymmetries
+  Type = Real  Bundle = {tangent}  Variance = Covariant
+
+Out[4]= u
+
+In[5]:= DefineTensor[w,1]
+
+Tensor w defined.
+  Rank = 1  Symmetries = NoSymmetries
+  Type = Real  Bundle = {tangent}  Variance = Covariant
+
+Out[5]= w
+
+In[6]:= DefineTensor[v,1,Variance->Con]
+
+Tensor v defined.
+  Rank = 1  Symmetries = NoSymmetries
+  Type = Real  Bundle = {tangent}  Variance = Contravariant
+
+Out[6]= v
+
+In[7]:= DefineTensor[eta,2,Symmetries->Skew]
+
+Tensor eta defined.
+  Rank = 2  Symmetries = Alternating
+  Type = Real  Bundle = {tangent}  Variance = Covariant
+
+Out[7]= eta
+
+(*****************************************************************************
+Let's try some operations on our tensors.  Del represents the total
+covariant derivative of a tensor.  The new index slot resulting from
+differentiation is always the last one.
+*****************************************************************************)
+
+In[8]:= Del[w]
+
+Out[8]= Del[w]
+
+(*****************************************************************************
+Del is generally held unevaluated until you insert indices.  Del[w] is a
+2-tensor, so we must give it two indices.
+*****************************************************************************)
+
+In[9]:= % [L[j],L[k]]
+
+Out[9]= w
+         j ;k 
+
+(*****************************************************************************
+Another way to see the components of a tensor expression is to use
+BasisExpand.  After BasisExpanding, you can still insert indices if you
+want (although this is generally slower than inserting indices directly for
+very large expressions).
+*****************************************************************************)
+
+In[10]:= BasisExpand[%8]
+
+                       m1           m2 
+Out[10]= w        Basis    (X) Basis
+          m1 ;m2 
+
+In[11]:= % [L[j],L[k]]
+
+Out[11]= w
+          j ;k 
+
+(*****************************************************************************
+We can do the same with exterior derivatives.
+*****************************************************************************)
+
+In[12]:= Extd[w]
+
+Out[12]= d[w]
+
+In[13]:= % [L[j],L[k]]
+
+         1
+Out[13]= - (-w      + w     )
+         2    j ;k     k ;j 
+
+In[14]:= BasisExpand[%12]
+
+           1                m3         m4    1               m3         m4 
+Out[14]= -(-) w        Basis    ^ Basis    + - w        Basis    ^ Basis
+           2   m3 ;m4                        2  m4 ;m3 
+
+In[15]:= TensorSimplify[%]
+
+                      i         j 
+Out[15]= -w      Basis   ^ Basis
+           i ;j 
+
+(*****************************************************************************
+Now let's do a non-trivial calculation.  We'll compute the Laplace-Beltrami
+operator acting on the one-form w.
+*****************************************************************************)
+
+In[16]:= LaplaceBeltrami[w]
+
+            *        *
+Out[16]= d[d [w]] + d [d[w]]
+
+In[17]:= % [L[j]]
+
+                 m6         m5             m6 
+Out[17]= -w          - w          + w
+           j ;m6        m5 ;   j     m6 ;j 
+
+(*****************************************************************************
+Let's see how we can simplify this expression.  First use TensorSimplify to
+put the indices into a canonical form.  Then use OrderCovD to put the
+covariant derivatives in alphabetical order.
+*****************************************************************************)
+
+In[18]:= TensorSimplify[%]
+
+               i        i            i 
+Out[18]= w        - w        - w
+          i ;j       i ;  j     j ;i 
+
+In[19]:= OrderCovD[%]
+
+                i        m7 
+Out[19]= -w        + Rc      w
+           j ;i        j      m7 
+
+(*****************************************************************************
+Let's compare this to the covariant or "rough Laplacian" Div[Del[w]].
+Bochner's formula says that the difference between the two Laplacians is a
+zero-order curvature operator.
+*****************************************************************************)
+
+In[20]:= Laplacian[w]
+
+Out[20]= Div[Grad[w]]
+
+In[21]:= % [L[j]]
+
+                 m10 
+Out[21]= w
+          j ;m10 
+
+In[22]:= %19 + %21
+
+                i            m10        m7 
+Out[22]= -w        + w            + Rc      w
+           j ;i       j ;m10          j      m7 
+
+In[23]:= TensorSimplify[%]
+
+                 i 
+Out[23]= Rc     w
+           i j 
+
+(*****************************************************************************
+Now let's do the same thing for the 2-form eta.
+*****************************************************************************)
+
+In[24]:= LaplaceBeltrami[eta] + Laplacian[eta]
+
+                             *          *
+Out[24]= Div[Grad[eta]] + d[d [eta]] + d [d[eta]]
+
+In[25]:= % [L[j],L[k]]
+
+                     m11                m14                m14 
+Out[25]= eta              - eta              + eta              + 
+            j k ;m11           j k ;m14           j m14 ;k 
+ 
+     1               m13                  m12                   m14 
+>    - (-2 eta              + 2 eta             ) - eta
+     2        j m13 ;    k         k m12 ;    j        k m14 ;j 
+
+In[26]:= TensorSimplify[%]
+
+                    i            i                i            i 
+Out[26]= -eta          + eta          + eta          - eta
+             i j ;k         i j ;  k       i k ;j         i k ;  j 
+
+In[27]:= OrderCovD[%]
+
+                        m18                  m15                i     m19 
+Out[27]= -eta       Rc       + eta       Rc       - eta       Rm           + 
+             k m18    j           j m15    k           i m19      j k 
+ 
+                 i     m16 
+>    eta       Rm
+        i m16      k j 
+
+In[28]:= TensorSimplify[%]
+
+                   i                i                  i     l 
+Out[28]= eta     Rc     - eta     Rc     - 2 eta     Rm
+            i k      j       i j      k         i l      j k 
+
+(*****************************************************************************
+Now let's suppose that u is an eigenfunction for the Laplace-Beltrami
+operator with eigenvalue lambda.  To tell Ricci about this relation, we use
+DefineRelation.  (You should never define a relation with a tensor on the
+left-hand side using ":=" or "=", because of the difference between the
+internal and external representations of tensors.)
+*****************************************************************************)
+
+In[29]:= DefineRelation[ u[L[i],U[i]], -lambda u]
+
+Relation defined.
+
+In[30]:= LaplaceBeltrami[u]
+
+          *
+Out[30]= d [d[u]]
+
+(*****************************************************************************
+Since this is a rank-zero expression, we can convert it to a component
+expression by inserting zero indices.  (Alternatively, we could have used
+BasisExpand.)
+*****************************************************************************)
+
+In[31]:= % []
+
+Out[31]= lambda u
+
+(*****************************************************************************
+Now let's try to prove the identity Laplacian[du] = - lambda du + Rc.du
+for an eigenfunction.
+*****************************************************************************)
+
+In[32]:= Laplacian[Extd[u]]
+
+Out[32]= Div[Grad[d[u]]]
+
+In[33]:= % [L[k]]
+
+                 m22 
+Out[33]= u
+          ;k m22 
+
+In[34]:= TensorSimplify[%]
+
+               i 
+Out[34]= u
+          ;k i 
+
+In[35]:= OrderCovD[%]
+
+                            m24 
+Out[35]= -lambda u    + Rc       u
+                  ;k      k       ;m24 
+
+In[36]:= TensorSimplify[%]
+
+                                 i 
+Out[36]= -lambda u    + Rc     u
+                  ;k      i k   ;
+
+(*****************************************************************************
+Here are a couple other operations.  The inner product is represented by
+Inner.  (Other contraction operations are Int and Dot.)
+*****************************************************************************)
+
+In[37]:= Inner[w,w]
+
+Out[37]= <w, w>
+
+In[38]:= BasisExpand[%]
+
+                m26 
+Out[38]= w     w
+          m26 
+
+(*****************************************************************************
+We can also do Lie derivatives.  When we insert indices, they are expressed
+in terms of covariant derivatives.
+*****************************************************************************)
+
+In[39]:= Lie[v,u]
+
+Out[39]= Del  [u]
+            v
+
+In[40]:= Lie[v,w]
+
+Out[40]= Lie  [w]
+            v
+
+In[41]:= BasisExpand[%]
+
+          m30                  m27     m28                  m27 
+Out[41]= v     w          Basis     + v          w     Basis
+                m27 ;m30                   ;m27   m28 
+
+In[42]:= TensorSimplify[%]
+
+          j              i     j              i 
+Out[42]= v   w      Basis   + v      w   Basis
+              i ;j               ;i   j 
+
+(*****************************************************************************
+As you can see above, the Lie derivative of a function is always
+transformed into a directional derivative, indicated by Del.  This is not
+done automatically for higher-degree forms.  You can use LieRule to
+transform Lie derivatives of differential forms into exterior derivatives
+and contractions.
+*****************************************************************************)
+
+In[43]:= %40 /. LieRule
+
+Out[43]= d[<w, v>] + Int  [d[w]]
+                        v
+
+In[44]:= BasisExpand[%]
+
+          m32                  m31     m32                  m31 
+Out[44]= v          w     Basis     + v     w          Basis     + 
+              ;m31   m32                     m32 ;m31 
+ 
+      m34                  m33     m34                  m33 
+>    v     w          Basis     - v     w          Basis
+            m33 ;m34                     m34 ;m33 
+
+In[45]:= TensorSimplify[%]
+
+          j              i     j              i 
+Out[45]= v   w      Basis   + v      w   Basis
+              i ;j               ;i   j 
+
+(*****************************************************************************
+Now let's define a complex bundle called "fiber".  It is p-dimensional, and
+its metric is called h; indices a,b,c,d will refer to it.  The first bundle
+we defined, "tangent", will be assumed to be the underlying tangent bundle
+for "fiber".  Any time you define a complex bundle, you also get its
+conjugate bundle, which is referred to as Conjugate[fiber] and associated
+with barred indices.
+*****************************************************************************)
+
+In[46]:= DefineBundle[fiber,p,h,{a,b,c,d},Type->Complex]
+
+Constant p defined.  Conjugate[p] = p.
+Index a associated with fiber
+Index b associated with fiber
+Index c associated with fiber
+Index d associated with fiber
+Tensor h defined.
+  Rank = 2  Symmetries = Symmetric
+  Type = Real  Bundle = fiber  Variance = Covariant
+Bundle fiber defined.
+   Metric = h   Dimension = p   Indices = {a, b, c, d}
+   Bundle Type = Complex   Metric Type = Normal
+   Tangent Bundle = {tangent}
+   Connection is torsion free.
+
+Out[46]= fiber
+
+(*****************************************************************************
+Now we define a 2-tensor A over fiber.  We define it to be Hermitian, which
+is treated internally as a symmetric tensor with the additional property
+that it gives zero whenever both indices are associated with fiber or both
+with Conjugate[fiber].
+*****************************************************************************)
+
+In[47]:= DefineTensor[A,2,Symmetries->Hermitian,Bundle->fiber]
+
+Tensor A defined.
+  Rank = 2  Symmetries = Symmetric
+  Type = Real  Bundle = fiber  Variance = Covariant
+
+Out[47]= A
+
+In[48]:= BasisExpand[A]
+
+                                 _                             _
+                      d3         d2                 d1         d4
+Out[48]= A   _   Basis    * Basis    + A   _   Basis    * Basis   
+          d3 d2                         d1 d4
+
+(*****************************************************************************
+Symmetric products are represented internally by ordinary multiplication;
+in output form, Ricci inserts explicit asterisks to remind you that
+multiplication is being interpreted as symmetric product.
+*****************************************************************************)
+
+In[49]:= TensorSimplify[%]
+
+                                _
+                      a         b
+Out[49]= 2 A  _  Basis   * Basis  
+            a b
+
+In[50]:= Del[A]
+
+Out[50]= Del[A]
+
+In[51]:= BasisExpand[%]
+
+                                        _
+                           d5           d8           m35 
+Out[51]= A   _        Basis    (X) Basis    (X) Basis     + 
+          d5 d8 ;m35 
+ 
+                       _
+                       d6           d7           m35 
+>    A   _        Basis    (X) Basis    (X) Basis
+      d7 d6 ;m35 
+
+In[52]:= TensorSimplify[%]
+
+                                   _
+                       a           b           i 
+Out[52]= A  _     Basis   (X) Basis   (X) Basis   + 
+          a b ;i 
+ 
+                   _
+                   b           a           i 
+>    A  _     Basis   (X) Basis   (X) Basis
+      a b ;i 
+
+(*****************************************************************************
+Notice how the symmetric products have reverted to tensor products, since
+Del[A] is no longer fully symmetric.  Notice also how the derivative
+indices are associated with "tangent", which is the underlying tangent
+bundle for fiber.
+
+The tensor product TProd[A,w] represents a 3-tensor whose first two index
+slots refer to fiber and whose last refers to tangent.
+*****************************************************************************)
+
+In[53]:= A~TProd~w
+
+Out[53]= A (X) w
+
+In[54]:= % [L[a],LB[b],L[j]]
+
+Out[54]= A  _  w
+          a b   j 
+
+(*****************************************************************************
+Now let's take a couple of covariant derivatives of this expression.
+*****************************************************************************)
+
+In[55]:= % [L[i]]
+
+Out[55]= A  _     w   + A  _  w
+          a b ;i   j     a b   j ;i 
+
+In[56]:= % [U[i]]
+
+                 i              i                        i                i 
+Out[56]= A  _       w   + A  _     w      + A  _     w      + A  _  w
+          a b ;i     j     a b ;    j ;i     a b ;i   j ;      a b   j ;i 
+
+(*****************************************************************************
+The result should be the same as if we had taken the covariant Laplacian of
+the original tensor product.
+*****************************************************************************)
+
+In[57]:= Laplacian[%53]
+
+Out[57]= Div[Grad[A (X) w]]
+
+In[58]:= % [L[a],LB[b],L[j]]
+
+                   m36              m36                            m36 
+Out[58]= A  _           w   + A  _       w        + A  _       w        + 
+          a b ;m36       j     a b ;      j ;m36     a b ;m36   j ;
+ 
+                   m36 
+>    A  _  w
+      a b   j ;m36 
+
+In[59]:= TensorSimplify[%]
+
+                 i                       i                i 
+Out[59]= A  _       w   + 2 A  _     w      + A  _  w
+          a b ;i     j       a b ;i   j ;      a b   j ;i 
+
+In[60]:= TensorSimplify[%56]
+
+                 i                       i                i 
+Out[60]= A  _       w   + 2 A  _     w      + A  _  w
+          a b ;i     j       a b ;i   j ;      a b   j ;i 
+
+(*****************************************************************************
+Finally, let's look at the connection forms for the default connection
+on "fiber".  The default connection on any bundle is referred to as
+Conn.  It is defined as a "product tensor" of rank {2,1}; the first
+two indices can refer to any bundle, while the third refers to the
+underlying tangent bundle of the first bundle.  The first two indices
+can be inserted separately; this represents the matrix of connection
+1-forms associated with the bundle.
+*****************************************************************************)
+
+In[61]:= Conn[L[a],U[b]]
+
+               b 
+Out[61]= Conn
+             a 
+
+In[62]:= BasisExpand[%]
+
+               b           m37 
+Out[62]= Conn         Basis
+             a   m37 
+
+(*****************************************************************************
+The rule "SecondStructureRule" replaces derivatives of the connection forms
+by curvature forms.
+*****************************************************************************)
+
+In[63]:= Extd[%61] - Conn[L[a],U[c]] ~Wedge~ Conn[L[c],U[b]]
+
+                 b           c          b 
+Out[63]= d[Conn    ] - Conn     ^ Conn
+               a           a          c 
+
+In[64]:= % /. SecondStructureRule
+
+         1       b          c          b          d9           b 
+Out[64]= - Curv     - Conn     ^ Conn     + Conn      ^ Conn
+         2     a          a          c          a           d9 
+
+In[65]:= TensorSimplify[%]
+
+         1       b 
+Out[65]= - Curv
+         2     a 
+
+(*****************************************************************************
+If you're not used to the factor 1/2 in this formula, it comes from the
+conventions that Ricci uses for wedge products and components of tensors.
+The following expansions should make the conventions clear.  You can change
+the convention for wedge products by changing the global variable
+$WedgeConvention.  Type ?$WedgeConvention for more information.
+*****************************************************************************)
+
+In[66]:= BasisExpand[%]
+
+         1       b               m38         m39 
+Out[66]= - Curv             Basis     ^ Basis
+         2     a   m38 m39 
+
+
+In[67]:= %65 [L[i],L[j]]
+
+         1       b 
+Out[67]= - Curv
+         2     a   i j 
+
+(*****************************************************************************
+Now you're on your own.  Have fun!
+*****************************************************************************)
